@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:email_validator/email_validator.dart';
 void main() {
   runApp(const MaterialApp(
     home: LoginScreen(),
@@ -8,6 +9,7 @@ void main() {
 }
 class LoginScreen extends StatefulWidget{
   const LoginScreen({super.key});
+  @override
   State<LoginScreen> createState()=> _LoginScreenState();
 }
 class _LoginScreenState extends State<LoginScreen>{
@@ -35,6 +37,12 @@ class _LoginScreenState extends State<LoginScreen>{
             padding: const EdgeInsets.only(left: 250,right: 250,top: 20),
             child: TextFormField(
               controller: emailController,
+              validator: (value){
+                if(value==null || value.isEmpty){
+                  return "Please enter your email";
+                }
+                return null;
+              },
               decoration: const InputDecoration(
                 labelText: "Email",
                 labelStyle: TextStyle(color: Colors.red),
@@ -45,6 +53,12 @@ class _LoginScreenState extends State<LoginScreen>{
           ),
           Padding(padding: const EdgeInsets.only(left: 250,right: 250,top: 20),
             child: TextFormField(
+              validator: (value){
+                if(value == null || value.isEmpty){
+                  return "Please enter your password";
+                }
+                else return null;
+              },
               decoration: const InputDecoration(
                 labelText: "Password",
                 labelStyle: TextStyle(color: Colors.red),
@@ -62,8 +76,10 @@ class _LoginScreenState extends State<LoginScreen>{
               textColor: Colors.white,
               child: const Text("Login"),
               onPressed: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => const HomePage()),
-                );}
+    if (_formKey.currentState!.validate()) {
+    Navigator.push(context, MaterialPageRoute(builder: (context) => const HomePage()));
+    }
+    }
           ),
           const SizedBox(height: 20,),
           MaterialButton(
@@ -73,7 +89,7 @@ class _LoginScreenState extends State<LoginScreen>{
               textColor: Colors.white,
               child: const Text("Register"),
               onPressed: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => const RegisterPage()),
+                Navigator.push(context, MaterialPageRoute(builder: (context) => RegisterPage()),
                 );}
           ),
         ],
@@ -84,7 +100,15 @@ class _LoginScreenState extends State<LoginScreen>{
 }
 
 class RegisterPage extends StatelessWidget{
-  const RegisterPage({super.key});
+   RegisterPage({super.key});
+   String emailTemp="e";
+   String passwordTemp1="a";
+   String passwordTemp2="s";
+  final _formKey = GlobalKey<FormState>();
+  TextEditingController emailController = TextEditingController();
+  TextEditingController passwordController1 = TextEditingController();
+  TextEditingController passwordController2 = TextEditingController();
+  bool isMatched=false;
   @override
   Widget build(BuildContext context){
     return Scaffold(
@@ -93,13 +117,28 @@ class RegisterPage extends StatelessWidget{
         centerTitle: true,
         backgroundColor: Colors.purple,
       ),
-      body: Column(
+      body: Form(
+        key: _formKey,
+    child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(Icons.app_registration,color: Colors.purple,size: 90,),
         Padding(
           padding: const EdgeInsets.only(left: 250,right: 250,top: 20),
           child: TextFormField(
+            controller: emailController,
+            onChanged: (value){
+              emailTemp=value;
+            },
+            validator: (value){
+              if(value == null || value.isEmpty){
+                return "Please enter your email";
+              }
+              else if(!EmailValidator.validate(value)){
+                return "Enter a valid email";
+              }
+              else return null;
+            },
             decoration: const InputDecoration(
               labelText: "Email",
               labelStyle: TextStyle(color: Colors.purple),
@@ -110,6 +149,16 @@ class RegisterPage extends StatelessWidget{
         ),
         Padding(padding: const EdgeInsets.only(left: 250,right: 250,top: 20),
           child: TextFormField(
+            controller: passwordController1,
+            onChanged: (value){
+              passwordTemp1=value;
+            },
+            validator: (value){
+              if(value == null || value.isEmpty){
+                return "Please enter your password";
+              }
+              else return null;
+            },
             decoration: const InputDecoration(
               labelText: "Password",
               labelStyle: TextStyle(color: Colors.purple),
@@ -121,6 +170,22 @@ class RegisterPage extends StatelessWidget{
         ),
           Padding(padding: const EdgeInsets.only(left: 250,right: 250,top: 20),
             child: TextFormField(
+              controller: passwordController2,
+              onChanged: (value)async{
+                passwordTemp2=value;
+              },
+              validator: (value){
+                if(value == null || value.isEmpty){
+                  return "Please enter your password";
+                }
+                else if(passwordController1!=passwordController2){
+                  return "Passwords has to match";
+                }
+                else {
+                  isMatched=true;
+                  return null;
+                }
+              },
               decoration: const InputDecoration(
                 labelText: "Confirm Password",
                 labelStyle: TextStyle(color: Colors.purple),
@@ -138,11 +203,14 @@ class RegisterPage extends StatelessWidget{
             textColor: Colors.white,
             child: const Text("Register"),
             onPressed: () {
-              Navigator.push(context, MaterialPageRoute(builder: (context) => const HomePage()),
-              );}
+              if (_formKey.currentState!.validate()) {
+                Navigator.push(context, MaterialPageRoute(builder: (context) => const HomePage()));
+              }
+            }
         ),
       ]
     ),
+      ),
     );
   }
 }
@@ -157,4 +225,16 @@ class HomePage extends StatelessWidget{
       ),
     );
   }
+}
+
+Future addData(String email,String password)async{
+  final SharedPreferences prefs=await SharedPreferences.getInstance();
+  await prefs.setString(email, password);
+}
+
+Future getData(String email)async{
+  String? password;
+  final SharedPreferences prefs = await SharedPreferences.getInstance();
+  password = await prefs.getString(email);
+  return password;
 }
