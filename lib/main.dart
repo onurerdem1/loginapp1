@@ -13,9 +13,13 @@ class LoginScreen extends StatefulWidget{
   State<LoginScreen> createState()=> _LoginScreenState();
 }
 class _LoginScreenState extends State<LoginScreen>{
+  String emailTemp="";
+  String passwordTemp="";
+  String controllerPassword="";
   final _formKey = GlobalKey<FormState>();
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
+  bool isMatched=true;
   @override
   Widget build(BuildContext context){
     return Scaffold(
@@ -37,10 +41,14 @@ class _LoginScreenState extends State<LoginScreen>{
             padding: const EdgeInsets.only(left: 250,right: 250,top: 20),
             child: TextFormField(
               controller: emailController,
+              onChanged: (value){
+                emailTemp=value;
+              },
               validator: (value){
                 if(value==null || value.isEmpty){
                   return "Please enter your email";
                 }
+                else if(!EmailValidator.validate(emailTemp)) return "Please enter a valid email";
                 return null;
               },
               decoration: const InputDecoration(
@@ -53,10 +61,18 @@ class _LoginScreenState extends State<LoginScreen>{
           ),
           Padding(padding: const EdgeInsets.only(left: 250,right: 250,top: 20),
             child: TextFormField(
+              onChanged: (value)async{
+                passwordTemp=value;
+                if(passwordTemp==await getData(emailTemp)){
+                  isMatched=false;
+                }
+                else isMatched=true;
+              },
               validator: (value){
                 if(value == null || value.isEmpty){
                   return "Please enter your password";
                 }
+                else if(isMatched) return "Wrong password or email";
                 else return null;
               },
               decoration: const InputDecoration(
@@ -75,11 +91,12 @@ class _LoginScreenState extends State<LoginScreen>{
               color: Colors.red,
               textColor: Colors.white,
               child: const Text("Login"),
-              onPressed: () {
-    if (_formKey.currentState!.validate()) {
-    Navigator.push(context, MaterialPageRoute(builder: (context) => const HomePage()));
-    }
-    }
+              onPressed: () async {
+                if (_formKey.currentState!.validate()) {
+                    Navigator.push(context, MaterialPageRoute(
+                        builder: (context) => const HomePage()));
+                  }
+                }
           ),
           const SizedBox(height: 20,),
           MaterialButton(
@@ -98,17 +115,16 @@ class _LoginScreenState extends State<LoginScreen>{
     );
   }
 }
-
+//ignore: must_be_immutable
 class RegisterPage extends StatelessWidget{
    RegisterPage({super.key});
-   String emailTemp="e";
-   String passwordTemp1="a";
-   String passwordTemp2="s";
+   String emailTemp="";
+   String passwordTemp1="";
+   String passwordTemp2="";
   final _formKey = GlobalKey<FormState>();
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController1 = TextEditingController();
   TextEditingController passwordController2 = TextEditingController();
-  bool isMatched=false;
   @override
   Widget build(BuildContext context){
     return Scaffold(
@@ -173,16 +189,18 @@ class RegisterPage extends StatelessWidget{
               controller: passwordController2,
               onChanged: (value)async{
                 passwordTemp2=value;
+                if(passwordTemp2==passwordTemp1){
+                  await addData(emailTemp, passwordTemp2);
+                }
               },
               validator: (value){
                 if(value == null || value.isEmpty){
                   return "Please enter your password";
                 }
-                else if(passwordController1!=passwordController2){
+                else if(passwordTemp1!=passwordTemp2){
                   return "Passwords has to match";
                 }
                 else {
-                  isMatched=true;
                   return null;
                 }
               },
@@ -204,7 +222,7 @@ class RegisterPage extends StatelessWidget{
             child: const Text("Register"),
             onPressed: () {
               if (_formKey.currentState!.validate()) {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => const HomePage()));
+                Navigator.push(context, MaterialPageRoute(builder: (context) => const LoginScreen()));
               }
             }
         ),
