@@ -38,7 +38,7 @@ class _LoginScreenState extends State<LoginScreen>{
             size: 150,
           ),
           Padding(
-            padding: const EdgeInsets.only(left: 250,right: 250,top: 20),
+            padding: const EdgeInsets.only(left: 50,right: 50,top: 20),
             child: TextFormField(
               controller: emailController,
               onChanged: (value){
@@ -48,7 +48,7 @@ class _LoginScreenState extends State<LoginScreen>{
                 if(value==null || value.isEmpty){
                   return "Please enter your email";
                 }
-                else if(!EmailValidator.validate(emailTemp)) return "Please enter a valid email";
+                else if(!EmailValidator.validate(emailTemp)){ return "Please enter a valid email";}
                 return null;
               },
               decoration: const InputDecoration(
@@ -59,21 +59,21 @@ class _LoginScreenState extends State<LoginScreen>{
               ),
             ),
           ),
-          Padding(padding: const EdgeInsets.only(left: 250,right: 250,top: 20),
+          Padding(padding: const EdgeInsets.only(left: 50,right: 50,top: 20),
             child: TextFormField(
               onChanged: (value)async{
                 passwordTemp=value;
                 if(passwordTemp==await getData(emailTemp)){
                   isMatched=false;
                 }
-                else isMatched=true;
+                else {isMatched=true;}
               },
               validator: (value){
                 if(value == null || value.isEmpty){
                   return "Please enter your password";
                 }
-                else if(isMatched) return "Wrong password or email";
-                else return null;
+                else if(isMatched) {return "Wrong password or email";}
+                else {return null;}
               },
               decoration: const InputDecoration(
                 labelText: "Password",
@@ -138,9 +138,9 @@ class RegisterPage extends StatelessWidget{
     child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.app_registration,color: Colors.purple,size: 90,),
+          const Icon(Icons.app_registration,color: Colors.purple,size: 90,),
         Padding(
-          padding: const EdgeInsets.only(left: 250,right: 250,top: 20),
+          padding: const EdgeInsets.only(left: 50,right: 50,top: 20),
           child: TextFormField(
             controller: emailController,
             onChanged: (value){
@@ -153,7 +153,7 @@ class RegisterPage extends StatelessWidget{
               else if(!EmailValidator.validate(value)){
                 return "Enter a valid email";
               }
-              else return null;
+              else {return null;}
             },
             decoration: const InputDecoration(
               labelText: "Email",
@@ -163,7 +163,7 @@ class RegisterPage extends StatelessWidget{
             ),
           ),
         ),
-        Padding(padding: const EdgeInsets.only(left: 250,right: 250,top: 20),
+        Padding(padding: const EdgeInsets.only(left: 50,right: 50,top: 20),
           child: TextFormField(
             controller: passwordController1,
             onChanged: (value){
@@ -173,7 +173,8 @@ class RegisterPage extends StatelessWidget{
               if(value == null || value.isEmpty){
                 return "Please enter your password";
               }
-              else return null;
+              if(passwordTemp1.length<6){ return "Password must be longer than 6 characters";}
+              else {return null;}
             },
             decoration: const InputDecoration(
               labelText: "Password",
@@ -184,7 +185,7 @@ class RegisterPage extends StatelessWidget{
             obscureText: true,
           ),
         ),
-          Padding(padding: const EdgeInsets.only(left: 250,right: 250,top: 20),
+          Padding(padding: const EdgeInsets.only(left: 50,right: 50,top: 20),
             child: TextFormField(
               controller: passwordController2,
               onChanged: (value)async{
@@ -200,6 +201,7 @@ class RegisterPage extends StatelessWidget{
                 else if(passwordTemp1!=passwordTemp2){
                   return "Passwords has to match";
                 }
+                if(passwordTemp2.length<6){ return "Password must be longer than 6 characters";}
                 else {
                   return null;
                 }
